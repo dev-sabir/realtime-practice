@@ -15,13 +15,34 @@ chat.addEventListener("submit", function (e) {
 });
 
 async function postNewMsg(user, text) {
-  // post to /poll a new message
-  // write code here
+  const data = {
+    user,
+    text,
+  };
+
+  const options = {
+    method: "POST",
+    body: JSON.stringify(data),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  };
+
+  return fetch("/poll", options);
 }
 
 async function getNewMsgs() {
-  // poll the server
-  // write code here
+  let json;
+  try {
+    const res = await fetch("/poll");
+    json = await res.json();
+  } catch (e) {
+    console.error("polling error", e);
+  }
+
+  allChat = json.msg;
+  render();
+  // setTimeout(getNewMsgs, INTERVAL);
 }
 
 function render() {
@@ -38,4 +59,17 @@ const template = (user, msg) =>
   `<li class="collection-item"><span class="badge">${user}</span>${msg}</li>`;
 
 // make the first request
-getNewMsgs();
+// getNewMsgs();
+
+let timeToMakeNextRequest = 0;
+async function rafTimer(time) {
+  if (timeToMakeNextRequest <= time) {
+    await getNewMsgs();
+    timeToMakeNextRequest = time + INTERVAL; //TODO: what if getNewMesgs() takes time to response then time will fall behind, figure out calling if after 3 sec of once response has come
+  }
+
+  requestAnimationFrame(rafTimer);
+}
+
+//FOR CALLING IT FIRST TIME
+requestAnimationFrame(rafTimer);
