@@ -27,7 +27,7 @@ app.get("/poll", function (req, res) {
 });
 
 app.post("/poll", function (req, res) {
-  const { user, text } = req.body();
+  const { user, text } = req.body;
   msg.push({
     user,
     text,
